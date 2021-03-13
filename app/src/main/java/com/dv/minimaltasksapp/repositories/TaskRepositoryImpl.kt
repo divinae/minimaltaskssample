@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import com.dv.minimaltasksapp.data.models.Task
 
 object TaskRepositoryImpl : TaskRepository {
+    // TODO store task in DB (using Room)
     private val tasks = MutableLiveData(listOf(Task("get A"), Task("get B"), Task("do x")))
 
     override fun getTasks(): LiveData<List<Task>> = tasks

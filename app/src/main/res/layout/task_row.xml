@@ -51,7 +51,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@{task.text}"
-                    android:textColor="@color/black"
                     android:textSize="18sp"
                     app:strikeThrough="@{task.done ? true : false}"
                     tools:text="Sample task" />

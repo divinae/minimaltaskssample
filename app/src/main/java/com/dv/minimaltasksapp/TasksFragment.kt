@@ -29,6 +29,7 @@ class TasksFragment : Fragment() {
             viewHolder: RecyclerView.ViewHolder,
             target: RecyclerView.ViewHolder
         ): Boolean {
+            // TODO add support for moving elements
             return false
         }
 

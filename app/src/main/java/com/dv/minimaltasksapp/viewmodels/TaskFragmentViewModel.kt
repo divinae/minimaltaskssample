@@ -7,6 +7,7 @@ import com.dv.minimaltasksapp.repositories.TaskRepository
 import com.dv.minimaltasksapp.repositories.TaskRepositoryImpl
 
 class TaskFragmentViewModel : ViewModel() {
+    // TODO use Hilt for dependencies
     private val taskRepository: TaskRepository = TaskRepositoryImpl
 
     fun getTasks(): LiveData<List<Task>> = taskRepository.getTasks()
