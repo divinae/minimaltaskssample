@@ -9,10 +9,18 @@ object TaskRepositoryImpl : TaskRepository {
 
     override fun getTasks(): LiveData<List<Task>> = tasks
 
-    override fun addTask(task: String) {
+    override fun addTask(taskText: String) {
         tasks.value = tasks.value?.toMutableList()?.apply {
-            add(Task(task))
+            add(Task(taskText))
         }
+    }
+
+    override fun removeTask(position: Int) {
+        val newList = tasks.value?.toMutableList()?.apply {
+            removeAt(position)
+        }
+
+        tasks.postValue(newList)
     }
 
     override fun toggleTask(task: Task) {

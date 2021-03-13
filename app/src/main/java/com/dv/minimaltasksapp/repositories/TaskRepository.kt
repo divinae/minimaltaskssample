@@ -6,7 +6,9 @@ import com.dv.minimaltasksapp.data.models.Task
 interface TaskRepository {
     fun getTasks(): LiveData<List<Task>>
 
-    fun addTask(task: String)
+    fun addTask(taskText: String)
+
+    fun removeTask(position: Int)
 
     fun toggleTask(task: Task)
 }

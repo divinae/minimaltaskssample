@@ -14,4 +14,8 @@ class TaskFragmentViewModel : ViewModel() {
     fun addTask(task: String) {
         taskRepository.addTask(task)
     }
+
+    fun removeTask(position: Int) {
+        taskRepository.removeTask(position)
+    }
 }
