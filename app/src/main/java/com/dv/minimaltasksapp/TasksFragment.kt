@@ -1,15 +1,16 @@
 package com.dv.minimaltasksapp
 
-import androidx.fragment.app.viewModels
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ItemTouchHelper.SimpleCallback
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.dv.minimaltasksapp.databinding.TaskFragmentBinding
+import com.dv.minimaltasksapp.databinding.TasksFragmentBinding
 import com.dv.minimaltasksapp.viewmodels.TaskFragmentViewModel
 
 class TasksFragment : Fragment() {
@@ -20,7 +21,7 @@ class TasksFragment : Fragment() {
 
     private val viewModel: TaskFragmentViewModel by viewModels()
 
-    private lateinit var binding: TaskFragmentBinding
+    private lateinit var binding: TasksFragmentBinding
 
     private val itemTouchHelper = object : SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
         override fun onMove(
@@ -41,9 +42,23 @@ class TasksFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = TaskFragmentBinding.inflate(inflater, container, false)
+        binding = TasksFragmentBinding.inflate(inflater, container, false)
 
-        val adapter = TaskListAdapter()
+        val linearLayoutManager = LinearLayoutManager(context).apply {
+            reverseLayout = true
+        }
+
+        binding.taskList.layoutManager = linearLayoutManager
+
+        val adapter = TaskListAdapter().apply {
+            registerAdapterDataObserver(object :
+                RecyclerView.AdapterDataObserver() {
+                override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                    binding.taskList.scrollToPosition(positionStart)
+                }
+            })
+        }
+
         binding.taskList.adapter = adapter
         ItemTouchHelper(itemTouchHelper).attachToRecyclerView(binding.taskList)
         subscribeTaskList(adapter)
