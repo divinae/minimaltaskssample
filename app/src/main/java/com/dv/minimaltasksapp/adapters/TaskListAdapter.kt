@@ -1,15 +1,15 @@
-package com.dv.minimaltasksapp
+package com.dv.minimaltasksapp.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.dv.minimaltasksapp.data.models.Task
+import com.dv.minimaltasksapp.data.Task
 import com.dv.minimaltasksapp.databinding.TaskRowBinding
-import com.dv.minimaltasksapp.viewmodels.TaskItemViewModel
 
-class TaskListAdapter : ListAdapter<Task, TaskListAdapter.TaskViewHolder>(TaskItemDiffCallback()) {
+class TaskListAdapter(private val listener: TaskViewHolderListener) :
+    ListAdapter<Task, TaskListAdapter.TaskViewHolder>(TaskItemDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
         return TaskViewHolder(
@@ -17,7 +17,8 @@ class TaskListAdapter : ListAdapter<Task, TaskListAdapter.TaskViewHolder>(TaskIt
                 LayoutInflater.from(parent.context),
                 parent,
                 false
-            )
+            ),
+            listener
         )
     }
 
@@ -26,17 +27,22 @@ class TaskListAdapter : ListAdapter<Task, TaskListAdapter.TaskViewHolder>(TaskIt
         holder.bind(task)
     }
 
-    class TaskViewHolder(private val binding: TaskRowBinding) : RecyclerView.ViewHolder(binding.root) {
+    class TaskViewHolder(private val binding: TaskRowBinding, private val listener: TaskViewHolderListener) :
+        RecyclerView.ViewHolder(binding.root) {
         fun bind(task: Task) {
             binding.task = task
-            binding.viewModel = TaskItemViewModel(task)
+            binding.listener = listener
         }
+    }
+
+    interface TaskViewHolderListener {
+        fun onItemClicked(task: Task)
     }
 }
 
 class TaskItemDiffCallback : DiffUtil.ItemCallback<Task>() {
     override fun areItemsTheSame(oldItem: Task, newItem: Task): Boolean {
-        return oldItem.text == newItem.text
+        return oldItem.id == newItem.id
     }
 
     override fun areContentsTheSame(oldItem: Task, newItem: Task): Boolean {

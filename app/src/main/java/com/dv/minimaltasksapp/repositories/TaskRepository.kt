@@ -1,14 +1,14 @@
 package com.dv.minimaltasksapp.repositories
 
 import androidx.lifecycle.LiveData
-import com.dv.minimaltasksapp.data.models.Task
+import com.dv.minimaltasksapp.data.Task
 
 interface TaskRepository {
     fun getTasks(): LiveData<List<Task>>
 
-    fun addTask(taskText: String)
+    suspend fun addTask(taskText: String)
 
-    fun removeTask(position: Int)
+    suspend fun removeTask(position: Int)
 
-    fun toggleTask(task: Task)
+    suspend fun toggleTask(task: Task)
 }

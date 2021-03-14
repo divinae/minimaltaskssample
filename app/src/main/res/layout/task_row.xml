@@ -6,12 +6,12 @@
     <data>
 
         <variable
-            name="viewModel"
-            type="com.dv.minimaltasksapp.viewmodels.TaskItemViewModel" />
+            name="listener"
+            type="com.dv.minimaltasksapp.adapters.TaskListAdapter.TaskViewHolderListener" />
 
         <variable
             name="task"
-            type="com.dv.minimaltasksapp.data.models.Task" />
+            type="com.dv.minimaltasksapp.data.Task" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -25,7 +25,7 @@
             android:layout_marginHorizontal="16dp"
             android:layout_marginVertical="8dp"
             android:foreground="?android:attr/selectableItemBackground"
-            android:onClick="@{() -> viewModel.toggleTask(task)}"
+            android:onClick="@{() -> listener.onItemClicked(task)}"
             app:cardCornerRadius="8dp"
             app:cardElevation="2dp"
             app:layout_constraintBottom_toBottomOf="parent"

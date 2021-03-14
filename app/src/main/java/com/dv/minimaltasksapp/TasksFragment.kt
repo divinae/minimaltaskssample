@@ -10,18 +10,27 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ItemTouchHelper.SimpleCallback
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.dv.minimaltasksapp.adapters.TaskListAdapter
+import com.dv.minimaltasksapp.data.Task
 import com.dv.minimaltasksapp.databinding.TasksFragmentBinding
-import com.dv.minimaltasksapp.viewmodels.TaskFragmentViewModel
+import com.dv.minimaltasksapp.viewmodels.TasksFragmentViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class TasksFragment : Fragment() {
+@AndroidEntryPoint
+@Singleton
+class TasksFragment @Inject constructor() : Fragment() {
 
-    companion object {
-        fun newInstance() = TasksFragment()
-    }
-
-    private val viewModel: TaskFragmentViewModel by viewModels()
+    private val viewModel: TasksFragmentViewModel by viewModels()
 
     private lateinit var binding: TasksFragmentBinding
+
+    private val taskViewHolderListener = object : TaskListAdapter.TaskViewHolderListener {
+        override fun onItemClicked(task: Task) {
+            viewModel.toggleTask(task)
+        }
+    }
 
     private val itemTouchHelper = object : SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
         override fun onMove(
@@ -51,7 +60,7 @@ class TasksFragment : Fragment() {
 
         binding.taskList.layoutManager = linearLayoutManager
 
-        val adapter = TaskListAdapter().apply {
+        val adapter = TaskListAdapter(taskViewHolderListener).apply {
             registerAdapterDataObserver(object :
                 RecyclerView.AdapterDataObserver() {
                 override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
