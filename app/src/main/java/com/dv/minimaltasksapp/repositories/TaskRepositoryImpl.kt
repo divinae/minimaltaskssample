@@ -3,6 +3,9 @@ package com.dv.minimaltasksapp.repositories
 import androidx.lifecycle.LiveData
 import com.dv.minimaltasksapp.data.Task
 import com.dv.minimaltasksapp.data.TasksDao
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class TaskRepositoryImpl @Inject constructor(private val tasksDao: TasksDao) : TaskRepository {
@@ -21,7 +24,11 @@ class TaskRepositoryImpl @Inject constructor(private val tasksDao: TasksDao) : T
         }
     }
 
-    override suspend fun toggleTask(task: Task) {
-        tasksDao.update(task.copy(done = !task.done))
+    override suspend fun toggleTask(task: Task, onSucces: () -> Unit) {
+        GlobalScope.launch {
+            tasksDao.update(task.copy(done = !task.done))
+            delay(1000)
+            onSucces.invoke()
+        }
     }
 }

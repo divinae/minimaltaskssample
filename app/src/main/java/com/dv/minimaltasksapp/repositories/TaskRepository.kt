@@ -10,5 +10,5 @@ interface TaskRepository {
 
     suspend fun removeTask(position: Int)
 
-    suspend fun toggleTask(task: Task)
+    suspend fun toggleTask(task: Task, onSucces: () -> Unit)
 }
