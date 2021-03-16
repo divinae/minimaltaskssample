@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ItemTouchHelper.SimpleCallback
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -24,16 +24,16 @@ import javax.inject.Singleton
 @Singleton
 class TasksFragment @Inject constructor() : Fragment() {
 
-    private var viewModel: TasksFragmentViewModel? = null
-
     private lateinit var binding: TasksFragmentBinding
 
     @Inject
     lateinit var taskRepository: TaskRepository
 
+    private val viewModel: TasksFragmentViewModel by viewModels { TaskFragmentViewModelFactory(taskRepository) }
+
     private val taskViewHolderListener = object : TaskListAdapter.TaskViewHolderListener {
         override fun onItemClicked(task: Task) {
-            viewModel?.toggleTask(task)
+            viewModel.toggleTask(task)
         }
     }
 
@@ -49,7 +49,7 @@ class TasksFragment @Inject constructor() : Fragment() {
 
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
             val position = viewHolder.adapterPosition
-            viewModel?.removeTask(position)
+            viewModel.removeTask(position)
         }
     }
 
@@ -58,12 +58,6 @@ class TasksFragment @Inject constructor() : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = TasksFragmentBinding.inflate(inflater, container, false)
-
-        viewModel = ViewModelProvider(
-            viewModelStore,
-            TaskFragmentViewModelFactory(taskRepository)
-        ).get(TasksFragmentViewModel::class.java)
-
         val linearLayoutManager = LinearLayoutManager(context).apply {
             reverseLayout = true
         }
@@ -85,14 +79,14 @@ class TasksFragment @Inject constructor() : Fragment() {
 
         binding.addTaskButton.setOnClickListener {
             // TODO create input text dialog
-            viewModel?.addTask("new task ${adapter.itemCount}")
+            viewModel.addTask("new task ${adapter.itemCount}")
         }
 
         return binding.root
     }
 
     private fun subscribeTaskList(adapter: TaskListAdapter) {
-        viewModel?.getTasks()?.observe(viewLifecycleOwner) { tasks ->
+        viewModel.getTasks().observe(viewLifecycleOwner) { tasks ->
             adapter.submitList(tasks)
         }
     }
