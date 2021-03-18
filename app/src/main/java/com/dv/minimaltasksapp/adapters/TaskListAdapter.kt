@@ -23,7 +23,14 @@ class TaskListAdapter(private val listener: TaskViewHolderListener) :
     }
 
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
+        if (position == itemCount - 1) {
+            listener.onLastItemViewed()
+        } else if (position == 0) {
+            listener.onFirstItemViewed()
+        }
+
         val task = getItem(position)
+
         holder.bind(task)
     }
 
@@ -37,6 +44,8 @@ class TaskListAdapter(private val listener: TaskViewHolderListener) :
 
     interface TaskViewHolderListener {
         fun onItemClicked(task: Task)
+        fun onLastItemViewed()
+        fun onFirstItemViewed()
     }
 }
 

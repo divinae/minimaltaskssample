@@ -1,6 +1,7 @@
 package com.dv.minimaltasksapp
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -29,6 +30,14 @@ class TasksFragment @Inject constructor() : Fragment() {
     private val taskViewHolderListener = object : TaskListAdapter.TaskViewHolderListener {
         override fun onItemClicked(task: Task) {
             viewModel.toggleTask(task)
+        }
+
+        override fun onLastItemViewed() {
+            Log.d("kuba_TasksFragment", "onLastItemViewed ")
+        }
+
+        override fun onFirstItemViewed() {
+            Log.d("kuba_TasksFragment", "onFirstItemViewed ")
         }
     }
 
