@@ -1,14 +1,14 @@
 package com.dv.minimaltasksapp.repositories
 
-import androidx.lifecycle.LiveData
 import com.dv.minimaltasksapp.data.Task
+import kotlinx.coroutines.flow.Flow
 
 interface TaskRepository {
-    fun getTasks(): LiveData<List<Task>>
+    fun getTasks(): Flow<List<Task>>
 
     suspend fun addTask(taskText: String)
 
-    suspend fun removeTask(position: Int)
+    suspend fun removeTask(task: Task)
 
     suspend fun toggleTask(task: Task)
 }

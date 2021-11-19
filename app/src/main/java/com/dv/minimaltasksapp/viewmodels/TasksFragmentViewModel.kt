@@ -1,18 +1,18 @@
 package com.dv.minimaltasksapp.viewmodels
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dv.minimaltasksapp.data.Task
 import com.dv.minimaltasksapp.repositories.TaskRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class TasksFragmentViewModel @Inject constructor(private val taskRepository: TaskRepository) : ViewModel() {
 
-    fun getTasks(): LiveData<List<Task>> = taskRepository.getTasks()
+    fun getTasks(): Flow<List<Task>> = taskRepository.getTasks()
 
     fun addTask(task: String) {
         viewModelScope.launch {
@@ -20,9 +20,9 @@ class TasksFragmentViewModel @Inject constructor(private val taskRepository: Tas
         }
     }
 
-    fun removeTask(position: Int) {
+    fun removeTask(task: Task) {
         viewModelScope.launch {
-            taskRepository.removeTask(position)
+            taskRepository.removeTask(task)
         }
     }
 

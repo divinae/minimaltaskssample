@@ -5,8 +5,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ItemTouchHelper.SimpleCallback
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,6 +20,8 @@ import com.dv.minimaltasksapp.data.Task
 import com.dv.minimaltasksapp.databinding.TasksFragmentBinding
 import com.dv.minimaltasksapp.viewmodels.TasksFragmentViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -26,6 +32,8 @@ class TasksFragment @Inject constructor() : Fragment() {
     private val viewModel: TasksFragmentViewModel by viewModels()
 
     private lateinit var binding: TasksFragmentBinding
+
+    private var tasks: List<Task> = emptyList()
 
     private val taskViewHolderListener = object : TaskListAdapter.TaskViewHolderListener {
         override fun onItemClicked(task: Task) {
@@ -53,7 +61,7 @@ class TasksFragment @Inject constructor() : Fragment() {
 
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
             val position = viewHolder.adapterPosition
-            viewModel.removeTask(position)
+            viewModel.removeTask(tasks.get(position))
         }
     }
 
@@ -85,14 +93,21 @@ class TasksFragment @Inject constructor() : Fragment() {
         binding.addTaskButton.setOnClickListener {
             // TODO create input text dialog
             viewModel.addTask("new task ${adapter.itemCount}")
+
+            Toast.makeText(context, "Task added", Toast.LENGTH_SHORT).show()
         }
 
         return binding.root
     }
 
     private fun subscribeTaskList(adapter: TaskListAdapter) {
-        viewModel.getTasks().observe(viewLifecycleOwner) { tasks ->
-            adapter.submitList(tasks)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.getTasks().collect { tasks ->
+                    adapter.submitList(tasks)
+                    this@TasksFragment.tasks = tasks
+                }
+            }
         }
     }
 }
