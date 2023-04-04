@@ -38,6 +38,7 @@ import androidx.compose.material.rememberDismissState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -46,7 +47,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.lifecycleScope
 import com.dv.minimaltasksapp.data.Task
 import com.dv.minimaltasksapp.ui.theme.MinimalTasksTheme
 import com.dv.minimaltasksapp.viewmodels.TasksFragmentViewModel
@@ -71,8 +71,8 @@ class MainActivity : AppCompatActivity() {
     @Composable
     fun MainScreen() {
         val tasks: List<Task> by viewModel.getTasks().collectAsState(initial = emptyList())
-
         val listState = rememberLazyListState()
+        val scope = rememberCoroutineScope()
 
         Scaffold(
             floatingActionButton = {
@@ -81,14 +81,14 @@ class MainActivity : AppCompatActivity() {
                     contentColor = Color.White,
                     onClick = {
                         viewModel.addTask("task ${tasks.size}")
-                        lifecycleScope.launch {
-                            if (tasks.isNotEmpty()) {
+                        if (tasks.isNotEmpty()) {
+                            scope.launch {
                                 listState.scrollToItem(tasks.size - 1)
                             }
                         }
                     }
                 ) {
-                    Icon(Icons.Filled.Add, "")
+                    Icon(Icons.Filled.Add, null)
                 }
             },
             floatingActionButtonPosition = FabPosition.Center
@@ -97,10 +97,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    @OptIn(ExperimentalMaterialApi::class)
     @Composable
     fun MasterCard(listState: LazyListState, tasks: List<Task>, paddingValues: PaddingValues) {
         LazyColumn(
+            modifier = Modifier.padding(paddingValues),
             state = listState,
             contentPadding = PaddingValues(horizontal = 16.dp),
             reverseLayout = true
@@ -111,74 +111,79 @@ class MainActivity : AppCompatActivity() {
                     listItem.hashCode()
                 }
             ) { index, task ->
-                val state = rememberDismissState(
-                    confirmStateChange = {
-                        if (it == DismissValue.DismissedToStart) {
-                            viewModel.removeTask(task)
-                        }
-                        true
-                    }
-                )
-
-                SwipeToDismiss(
-                    state = state,
-                    background = {
-                        val color = when (state.dismissDirection) {
-                            DismissDirection.StartToEnd -> Color.Transparent
-                            DismissDirection.EndToStart -> Color.Red
-                            null -> Color.Transparent
-                        }
-
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(8.dp))
-                                .fillMaxWidth()
-                                .height(56.dp)
-                                .background(color)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = null,
-                                tint = Color.White,
-                                modifier = Modifier
-                                    .align(Alignment.CenterEnd)
-                                    .padding(end = 8.dp)
-                            )
-                        }
-                    },
-                    dismissContent = {
-                        TaskItem(
-                            task = task,
-                            isFirst = index == 0,
-                            isLast = index == tasks.size - 1
-                        )
-                    },
-                    directions = setOf(DismissDirection.EndToStart)
+                DismissibleTask(
+                    task = task,
+                    isFirstElement = index == 0,
+                    isLastElement = index == tasks.size - 1
                 )
             }
         }
     }
 
+    @OptIn(ExperimentalMaterialApi::class)
     @Composable
-    fun TaskItem(task: Task, isFirst: Boolean, isLast: Boolean) {
-        val bottomPadding = if (isFirst) {
+    fun DismissibleTask(task: Task, isFirstElement: Boolean, isLastElement: Boolean) {
+        val dismissState = rememberDismissState(
+            confirmStateChange = {
+                if (it == DismissValue.DismissedToStart) {
+                    viewModel.removeTask(task)
+                }
+                true
+            }
+        )
+
+        val bottomPadding = if (isFirstElement) {
             110.dp
         } else {
             16.dp
         }
 
-        val topPadding = if (isLast) {
+        val topPadding = if (isLastElement) {
             500.dp
         } else {
             0.dp
         }
 
+        SwipeToDismiss(
+            modifier = Modifier.padding(bottom = bottomPadding, top = topPadding),
+            state = dismissState,
+            background = {
+                val color = when (dismissState.dismissDirection) {
+                    DismissDirection.EndToStart -> Color.Red
+                    else -> Color.Transparent
+                }
+
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .background(color)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .padding(end = 8.dp)
+                    )
+                }
+            },
+            dismissContent = {
+                TaskItem(task)
+            },
+            directions = setOf(DismissDirection.EndToStart)
+        )
+    }
+
+    @Composable
+    fun TaskItem(task: Task) {
         Surface(
             shape = RoundedCornerShape(8.dp),
             elevation = 2.dp,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start = 0.dp, end = 0.dp, bottom = bottomPadding, top = topPadding)
                 .clickable {
                     viewModel.toggleTask(task)
                 }
