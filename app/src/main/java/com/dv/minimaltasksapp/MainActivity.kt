@@ -92,14 +92,14 @@ class MainActivity : AppCompatActivity() {
                 }
             },
             floatingActionButtonPosition = FabPosition.Center
-        ) { paddingValues ->
-            MasterCard(listState, tasks)
+        ) {
+            MasterCard(listState, tasks, it)
         }
     }
 
     @OptIn(ExperimentalMaterialApi::class)
     @Composable
-    fun MasterCard(listState: LazyListState, tasks: List<Task>) {
+    fun MasterCard(listState: LazyListState, tasks: List<Task>, paddingValues: PaddingValues) {
         LazyColumn(
             state = listState,
             contentPadding = PaddingValues(horizontal = 16.dp),
